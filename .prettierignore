@@ -1,0 +1,39 @@
+# Dependencies
+node_modules
+.pnpm-store
+
+# Build outputs
+dist
+build
+.next
+out
+
+# Cache
+.cache
+.turbo
+
+# Coverage
+coverage
+
+# Logs
+*.log
+
+# Environment files
+.env*
+!.env.example
+
+# Generated files
+*.generated.*
+*.min.js
+
+# Package files
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Misc
+.DS_Store
+.idea
+.vscode
+*.swp
+*.swo 

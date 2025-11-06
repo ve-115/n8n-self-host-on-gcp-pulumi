@@ -32,10 +32,7 @@ beforeAll(() => {
         }
 
         if (args.type === "gcp:serviceaccount/account:Account") {
-          const accountId =
-            typeof args.inputs.accountId === "string"
-              ? args.inputs.accountId
-              : args.name;
+          const accountId = typeof args.inputs.accountId === "string" ? args.inputs.accountId : args.name;
 
           return {
             id: `${args.name}-id`,
@@ -88,37 +85,17 @@ const runSecretsStack = async () => {
     return {
       dbSecretId: await resolveOutput(secrets.dbPasswordSecret.secretId),
       dbSecretProject: await resolveOutput(secrets.dbPasswordSecret.project),
-      dbVersionSecret: await resolveOutput(
-        secrets.dbPasswordSecretVersion.secret
-      ),
-      dbVersionData: await resolveOutput(
-        secrets.dbPasswordSecretVersion.secretData
-      ),
-      encryptionSecretId: await resolveOutput(
-        secrets.encryptionKeySecret.secretId
-      ),
-      encryptionSecretProject: await resolveOutput(
-        secrets.encryptionKeySecret.project
-      ),
-      encryptionVersionSecret: await resolveOutput(
-        secrets.encryptionKeySecretVersion.secret
-      ),
-      encryptionVersionData: await resolveOutput(
-        secrets.encryptionKeySecretVersion.secretData
-      ),
+      dbVersionSecret: await resolveOutput(secrets.dbPasswordSecretVersion.secret),
+      dbVersionData: await resolveOutput(secrets.dbPasswordSecretVersion.secretData),
+      encryptionSecretId: await resolveOutput(secrets.encryptionKeySecret.secretId),
+      encryptionSecretProject: await resolveOutput(secrets.encryptionKeySecret.project),
+      encryptionVersionSecret: await resolveOutput(secrets.encryptionKeySecretVersion.secret),
+      encryptionVersionData: await resolveOutput(secrets.encryptionKeySecretVersion.secretData),
       encryptionKeyResult: await resolveOutput(secrets.encryptionKey.result),
-      dbAccessorMember: await resolveOutput(
-        secrets.dbPasswordSecretAccessor.member
-      ),
-      dbAccessorRole: await resolveOutput(
-        secrets.dbPasswordSecretAccessor.role
-      ),
-      encryptionAccessorMember: await resolveOutput(
-        secrets.encryptionKeySecretAccessor.member
-      ),
-      encryptionAccessorRole: await resolveOutput(
-        secrets.encryptionKeySecretAccessor.role
-      ),
+      dbAccessorMember: await resolveOutput(secrets.dbPasswordSecretAccessor.member),
+      dbAccessorRole: await resolveOutput(secrets.dbPasswordSecretAccessor.role),
+      encryptionAccessorMember: await resolveOutput(secrets.encryptionKeySecretAccessor.member),
+      encryptionAccessorRole: await resolveOutput(secrets.encryptionKeySecretAccessor.role),
     };
   })) as {
     dbSecretId: string;
@@ -152,28 +129,18 @@ describe("createSecrets", () => {
     expect(results.encryptionVersionData).toBe("mock-encryption-key");
     expect(results.encryptionKeyResult).toBe("mock-encryption-key");
 
-    const dbSecretResource = recordedResources.find(
-      (res) =>
-        res.type === "gcp:secretmanager/secret:Secret" &&
-        res.name === "dbPasswordSecret"
-    );
+    const dbSecretResource = recordedResources.find((res) => res.type === "gcp:secretmanager/secret:Secret" && res.name === "dbPasswordSecret");
     expect(dbSecretResource).toBeDefined();
     expect(dbSecretResource!.inputs.secretId).toBe("n8n-service-db-password");
     expect(dbSecretResource!.inputs.replication.auto).toEqual({});
     const encryptionSecretResource = recordedResources.find(
-      (res) =>
-        res.type === "gcp:secretmanager/secret:Secret" &&
-        res.name === "encryptionKeySecret"
+      (res) => res.type === "gcp:secretmanager/secret:Secret" && res.name === "encryptionKeySecret"
     );
     expect(encryptionSecretResource).toBeDefined();
-    expect(encryptionSecretResource!.inputs.secretId).toBe(
-      "n8n-service-encryption-key"
-    );
+    expect(encryptionSecretResource!.inputs.secretId).toBe("n8n-service-encryption-key");
     expect(encryptionSecretResource!.inputs.replication.auto).toEqual({});
 
-    const randomPasswordResource = recordedResources.find(
-      (res) => res.type === "random:index/randomPassword:RandomPassword"
-    );
+    const randomPasswordResource = recordedResources.find((res) => res.type === "random:index/randomPassword:RandomPassword");
     expect(randomPasswordResource).toBeDefined();
     expect(randomPasswordResource!.inputs.length).toBe(32);
     expect(randomPasswordResource!.inputs.special).toBe(false);
@@ -183,27 +150,17 @@ describe("createSecrets", () => {
     const results = await runSecretsStack();
 
     expect(results.dbAccessorRole).toBe("roles/secretmanager.secretAccessor");
-    expect(results.dbAccessorMember).toBe(
-      "serviceAccount:n8n-service-account@test-project.iam.gserviceaccount.com"
-    );
-    expect(results.encryptionAccessorRole).toBe(
-      "roles/secretmanager.secretAccessor"
-    );
-    expect(results.encryptionAccessorMember).toBe(
-      "serviceAccount:n8n-service-account@test-project.iam.gserviceaccount.com"
-    );
+    expect(results.dbAccessorMember).toBe("serviceAccount:n8n-service-account@test-project.iam.gserviceaccount.com");
+    expect(results.encryptionAccessorRole).toBe("roles/secretmanager.secretAccessor");
+    expect(results.encryptionAccessorMember).toBe("serviceAccount:n8n-service-account@test-project.iam.gserviceaccount.com");
 
     const dbAccessorResource = recordedResources.find(
-      (res) =>
-        res.type === "gcp:secretmanager/secretIamMember:SecretIamMember" &&
-        res.name === "dbPasswordSecretAccessor"
+      (res) => res.type === "gcp:secretmanager/secretIamMember:SecretIamMember" && res.name === "dbPasswordSecretAccessor"
     );
     expect(dbAccessorResource).toBeDefined();
 
     const encryptionAccessorResource = recordedResources.find(
-      (res) =>
-        res.type === "gcp:secretmanager/secretIamMember:SecretIamMember" &&
-        res.name === "encryptionKeySecretAccessor"
+      (res) => res.type === "gcp:secretmanager/secretIamMember:SecretIamMember" && res.name === "encryptionKeySecretAccessor"
     );
     expect(encryptionAccessorResource).toBeDefined();
   });

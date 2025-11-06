@@ -141,7 +141,6 @@ Generated directories such as `node_modules/` are omitted for brevity.
    ```
 
    On success Pulumi outputs:
-
    - Cloud Run URL (`cloudRunServiceUrl`)
    - Cloud SQL connection name (`cloudSqlConnectionName`)
    - Service account email (`n8nServiceAccountEmail`)

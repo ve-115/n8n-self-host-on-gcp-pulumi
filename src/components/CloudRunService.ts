@@ -2,10 +2,7 @@ import * as pulumi from "@pulumi/pulumi";
 import * as gcp from "@pulumi/gcp";
 
 import { CloudRunConfig, DatabaseConfig } from "../types/config.types";
-import {
-  CloudRunServiceResources,
-  SecretsResources,
-} from "../types/components.types";
+import { CloudRunServiceResources, SecretsResources } from "../types/components.types";
 
 interface CreateCloudRunServiceArgs {
   project: string;
@@ -32,19 +29,12 @@ export const createCloudRunService = ({
   allowUnauthenticated,
   dependencies,
 }: CreateCloudRunServiceArgs): CloudRunServiceResources => {
-  const projectDetails = pulumi.output(
-    gcp.organizations.getProject({ projectId: project })
-  );
+  const projectDetails = pulumi.output(gcp.organizations.getProject({ projectId: project }));
   const projectNumber = projectDetails.number;
   const serviceHost = pulumi.interpolate`${cloudRunConfig.serviceName}-${projectNumber}.${region}.run.app`;
   const serviceUrl = pulumi.interpolate`https://${serviceHost}`;
 
-  const dependsOn: pulumi.Resource[] = [
-    dbInstance,
-    secrets.dbPasswordSecretVersion,
-    secrets.encryptionKeySecretVersion,
-    ...(dependencies ?? []),
-  ];
+  const dependsOn: pulumi.Resource[] = [dbInstance, secrets.dbPasswordSecretVersion, secrets.encryptionKeySecretVersion, ...(dependencies ?? [])];
 
   const service = new gcp.cloudrunv2.Service(
     "n8nService",

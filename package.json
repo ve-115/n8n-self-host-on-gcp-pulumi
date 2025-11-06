@@ -2,12 +2,15 @@
   "name": "n8n-self-host-on-gcp-pulumi",
   "scripts": {
     "test": "jest --coverage",
-    "test:ci": "jest --coverage --ci"
+    "test:ci": "jest --coverage --ci",
+    "lint": "prettier --check .",
+    "lint:fix": "prettier --write ."
   },
   "devDependencies": {
     "@types/jest": "^30.0.0",
     "@types/node": "^18",
     "jest": "^30.2.0",
+    "prettier": "^3.6.2",
     "ts-jest": "^29.4.5"
   },
   "dependencies": {

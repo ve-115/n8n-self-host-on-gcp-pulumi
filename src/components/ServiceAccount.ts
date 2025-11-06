@@ -10,12 +10,7 @@ interface CreateServiceAccountArgs {
   dependsOn?: pulumi.Resource[];
 }
 
-export const createServiceAccount = ({
-  project,
-  accountId,
-  displayName,
-  dependsOn,
-}: CreateServiceAccountArgs): ServiceAccountResources => {
+export const createServiceAccount = ({ project, accountId, displayName, dependsOn }: CreateServiceAccountArgs): ServiceAccountResources => {
   const account = new gcp.serviceaccount.Account(
     "n8nServiceAccount",
     {

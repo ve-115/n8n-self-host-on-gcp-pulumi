@@ -12,13 +12,7 @@ interface CreateDatabaseArgs {
   sqlAdminApi: gcp.projects.Service;
 }
 
-export const createDatabase = ({
-  project,
-  region,
-  serviceName,
-  dbConfig,
-  sqlAdminApi,
-}: CreateDatabaseArgs): DatabaseResources => {
+export const createDatabase = ({ project, region, serviceName, dbConfig, sqlAdminApi }: CreateDatabaseArgs): DatabaseResources => {
   const instanceName = `${serviceName}-db`;
 
   const password = new random.RandomPassword("dbPassword", {

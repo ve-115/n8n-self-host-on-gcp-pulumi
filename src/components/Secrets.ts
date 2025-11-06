@@ -12,13 +12,7 @@ interface CreateSecretsArgs {
   secretManagerApi: gcp.projects.Service;
 }
 
-export const createSecrets = ({
-  project,
-  serviceName,
-  dbPassword,
-  serviceAccount,
-  secretManagerApi,
-}: CreateSecretsArgs): SecretsResources => {
+export const createSecrets = ({ project, serviceName, dbPassword, serviceAccount, secretManagerApi }: CreateSecretsArgs): SecretsResources => {
   const dbPasswordSecret = new gcp.secretmanager.Secret(
     "dbPasswordSecret",
     {
@@ -31,13 +25,10 @@ export const createSecrets = ({
     { dependsOn: [secretManagerApi] }
   );
 
-  const dbPasswordSecretVersion = new gcp.secretmanager.SecretVersion(
-    "dbPasswordSecretVersion",
-    {
-      secret: dbPasswordSecret.id,
-      secretData: dbPassword,
-    }
-  );
+  const dbPasswordSecretVersion = new gcp.secretmanager.SecretVersion("dbPasswordSecretVersion", {
+    secret: dbPasswordSecret.id,
+    secretData: dbPassword,
+  });
 
   const encryptionKey = new random.RandomPassword("n8nEncryptionKey", {
     length: 32,
@@ -56,13 +47,10 @@ export const createSecrets = ({
     { dependsOn: [secretManagerApi] }
   );
 
-  const encryptionKeySecretVersion = new gcp.secretmanager.SecretVersion(
-    "encryptionKeySecretVersion",
-    {
-      secret: encryptionKeySecret.id,
-      secretData: encryptionKey.result,
-    }
-  );
+  const encryptionKeySecretVersion = new gcp.secretmanager.SecretVersion("encryptionKeySecretVersion", {
+    secret: encryptionKeySecret.id,
+    secretData: encryptionKey.result,
+  });
 
   const dbPasswordSecretAccessor = new gcp.secretmanager.SecretIamMember(
     "dbPasswordSecretAccessor",

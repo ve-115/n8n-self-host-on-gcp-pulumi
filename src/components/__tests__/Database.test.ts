@@ -96,18 +96,14 @@ describe("createDatabase", () => {
     expect(results.userName).toBe(baseConfig.user);
     expect(results.passwordResult).toBe("mock-password");
 
-    const passwordResource = recordedResources.find(
-      (res) => res.type === "random:index/randomPassword:RandomPassword"
-    );
+    const passwordResource = recordedResources.find((res) => res.type === "random:index/randomPassword:RandomPassword");
     expect(passwordResource).toBeDefined();
     expect(passwordResource!.inputs.length).toBe(16);
     expect(passwordResource!.inputs.special).toBe(true);
     expect(passwordResource!.inputs.keepers.dbInstance).toBe("n8n-service-db");
     expect(passwordResource!.inputs.keepers.dbUser).toBe(baseConfig.user);
 
-    const instanceResource = recordedResources.find(
-      (res) => res.type === "gcp:sql/databaseInstance:DatabaseInstance"
-    );
+    const instanceResource = recordedResources.find((res) => res.type === "gcp:sql/databaseInstance:DatabaseInstance");
     expect(instanceResource).toBeDefined();
     expect(instanceResource!.inputs.name).toBe("n8n-service-db");
     expect(instanceResource!.inputs.project).toBe("test-project");
@@ -117,33 +113,23 @@ describe("createDatabase", () => {
     expect(instanceResource!.inputs.settings.tier).toBe(baseConfig.tier);
     expect(instanceResource!.inputs.settings.availabilityType).toBe("ZONAL");
     expect(instanceResource!.inputs.settings.diskType).toBe("PD_HDD");
-    expect(instanceResource!.inputs.settings.diskSize).toBe(
-      baseConfig.storageSize
-    );
-    expect(instanceResource!.inputs.settings.backupConfiguration.enabled).toBe(
-      false
-    );
+    expect(instanceResource!.inputs.settings.diskSize).toBe(baseConfig.storageSize);
+    expect(instanceResource!.inputs.settings.backupConfiguration.enabled).toBe(false);
 
-    const databaseResource = recordedResources.find(
-      (res) => res.type === "gcp:sql/database:Database"
-    );
+    const databaseResource = recordedResources.find((res) => res.type === "gcp:sql/database:Database");
     expect(databaseResource).toBeDefined();
     expect(databaseResource!.inputs.name).toBe(baseConfig.name);
     expect(databaseResource!.inputs.instance).toBe("n8n-service-db");
     expect(databaseResource!.inputs.project).toBe("test-project");
 
-    const userResource = recordedResources.find(
-      (res) => res.type === "gcp:sql/user:User"
-    );
+    const userResource = recordedResources.find((res) => res.type === "gcp:sql/user:User");
     expect(userResource).toBeDefined();
     expect(userResource!.inputs.name).toBe(baseConfig.user);
     expect(userResource!.inputs.instance).toBe("n8n-service-db");
     expect(userResource!.inputs.project).toBe("test-project");
     expect(userResource!.inputs.password.value).toBe("mock-password");
 
-    const sqlAdminApiResource = recordedResources.find(
-      (res) => res.type === "gcp:projects/service:Service"
-    );
+    const sqlAdminApiResource = recordedResources.find((res) => res.type === "gcp:projects/service:Service");
     expect(sqlAdminApiResource).toBeDefined();
     expect(sqlAdminApiResource!.inputs.service).toBe("sqladmin.googleapis.com");
   });

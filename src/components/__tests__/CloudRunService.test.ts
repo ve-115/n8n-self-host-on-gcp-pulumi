@@ -27,22 +27,14 @@ const buildSecrets = (suffix: string): SecretsResources =>
     dbPasswordSecret: {
       secretId: `projects/test/secrets/db-password-${suffix}`,
     },
-    dbPasswordSecretVersion: new DummyResource(
-      `dbPasswordSecretVersion-${suffix}`
-    ),
+    dbPasswordSecretVersion: new DummyResource(`dbPasswordSecretVersion-${suffix}`),
     encryptionKeySecret: {
       secretId: `projects/test/secrets/encryption-${suffix}`,
     },
-    encryptionKeySecretVersion: new DummyResource(
-      `encryptionKeySecretVersion-${suffix}`
-    ),
-    dbPasswordSecretAccessor: new DummyResource(
-      `dbPasswordSecretAccessor-${suffix}`
-    ),
-    encryptionKeySecretAccessor: new DummyResource(
-      `encryptionKeySecretAccessor-${suffix}`
-    ),
-  } as unknown as SecretsResources);
+    encryptionKeySecretVersion: new DummyResource(`encryptionKeySecretVersion-${suffix}`),
+    dbPasswordSecretAccessor: new DummyResource(`dbPasswordSecretAccessor-${suffix}`),
+    encryptionKeySecretAccessor: new DummyResource(`encryptionKeySecretAccessor-${suffix}`),
+  }) as unknown as SecretsResources;
 
 beforeAll(() => {
   pulumi.runtime.setMocks(
@@ -107,9 +99,7 @@ describe("createCloudRunService", () => {
         },
         dbConfig: baseDbConfig,
         dbInstance,
-        serviceAccountEmail: pulumi.output(
-          "service-account@test-project.iam.gserviceaccount.com"
-        ),
+        serviceAccountEmail: pulumi.output("service-account@test-project.iam.gserviceaccount.com"),
         secrets: buildSecrets("allow"),
         allowUnauthenticated: true,
       });
@@ -132,27 +122,19 @@ describe("createCloudRunService", () => {
     };
 
     expect(resolved.host).toBe("service-allow-1234567890.us-central1.run.app");
-    expect(resolved.url).toBe(
-      "https://service-allow-1234567890.us-central1.run.app"
-    );
+    expect(resolved.url).toBe("https://service-allow-1234567890.us-central1.run.app");
     expect(resolved.serviceName).toBe("service-allow");
     expect(resolved.publicInvokerUrn).toContain("cloudrunv2/serviceIamMember");
 
-    const serviceResource = recordedResources.find(
-      (res) => res.type === "gcp:cloudrunv2/service:Service"
-    );
+    const serviceResource = recordedResources.find((res) => res.type === "gcp:cloudrunv2/service:Service");
     expect(serviceResource).toBeDefined();
 
     const envs = serviceResource!.inputs.template.containers[0].envs;
     const portEnv = envs.find((env: any) => env.name === "N8N_PORT");
     expect(portEnv.value).toBe("5678");
 
-    const encryptionEnv = envs.find(
-      (env: any) => env.name === "N8N_ENCRYPTION_KEY"
-    );
-    expect(encryptionEnv.valueSource.secretKeyRef.secret).toBe(
-      "projects/test/secrets/encryption-allow"
-    );
+    const encryptionEnv = envs.find((env: any) => env.name === "N8N_ENCRYPTION_KEY");
+    expect(encryptionEnv.valueSource.secretKeyRef.secret).toBe("projects/test/secrets/encryption-allow");
   });
 
   it("skips public IAM binding when unauthenticated access is disabled", async () => {
@@ -176,9 +158,7 @@ describe("createCloudRunService", () => {
         },
         dbConfig: baseDbConfig,
         dbInstance,
-        serviceAccountEmail: pulumi.output(
-          "service-account@test-project.iam.gserviceaccount.com"
-        ),
+        serviceAccountEmail: pulumi.output("service-account@test-project.iam.gserviceaccount.com"),
         secrets: buildSecrets("deny"),
         allowUnauthenticated: false,
       });

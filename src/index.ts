@@ -1,11 +1,5 @@
 import deploymentConfig from "./config";
-import {
-  createCloudRunService,
-  createDatabase,
-  createSecrets,
-  createServiceAccount,
-  enableCoreServices,
-} from "./components";
+import { createCloudRunService, createDatabase, createSecrets, createServiceAccount, enableCoreServices } from "./components";
 
 const {
   gcp: { project, region },

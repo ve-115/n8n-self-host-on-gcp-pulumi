@@ -2,11 +2,7 @@ import * as pulumi from "@pulumi/pulumi";
 import * as gcp from "@pulumi/gcp";
 
 import { DeploymentConfig } from "./types/config.types";
-import {
-  requireConfigBoolean,
-  requireConfigNumber,
-  requireConfigString,
-} from "./utils/config.utils";
+import { requireConfigBoolean, requireConfigNumber, requireConfigString } from "./utils/config.utils";
 
 const project = gcp.config.project;
 if (!project) {
@@ -41,10 +37,7 @@ const deploymentConfig: DeploymentConfig = {
     containerPort: requireConfigNumber(stackConfig, "cloudRunContainerPort"),
   },
   timezone: requireConfigString(stackConfig, "genericTimezone"),
-  allowUnauthenticated: requireConfigBoolean(
-    stackConfig,
-    "allowUnauthenticated"
-  ),
+  allowUnauthenticated: requireConfigBoolean(stackConfig, "allowUnauthenticated"),
 };
 
 export default deploymentConfig;

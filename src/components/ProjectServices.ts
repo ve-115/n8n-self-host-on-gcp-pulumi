@@ -2,9 +2,7 @@ import * as gcp from "@pulumi/gcp";
 
 import { ProjectServicesResources } from "../types/components.types";
 
-export const enableCoreServices = (
-  project: string
-): ProjectServicesResources => {
+export const enableCoreServices = (project: string): ProjectServicesResources => {
   const runApi = new gcp.projects.Service("runApi", {
     project,
     service: "run.googleapis.com",

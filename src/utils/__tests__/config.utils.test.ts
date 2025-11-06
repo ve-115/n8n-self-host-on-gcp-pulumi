@@ -1,13 +1,7 @@
 import * as pulumi from "@pulumi/pulumi";
-import {
-  requireConfigBoolean,
-  requireConfigNumber,
-  requireConfigString,
-} from "../config.utils";
+import { requireConfigBoolean, requireConfigNumber, requireConfigString } from "../config.utils";
 
-type MockConfig = Partial<
-  Record<"get" | "getNumber" | "getBoolean", jest.Mock>
->;
+type MockConfig = Partial<Record<"get" | "getNumber" | "getBoolean", jest.Mock>>;
 
 const buildConfig = (overrides: MockConfig): pulumi.Config => {
   const defaults: MockConfig = {
@@ -39,9 +33,7 @@ describe("requireConfigString", () => {
       get: jest.fn().mockReturnValue(undefined),
     });
 
-    expect(() => requireConfigString(config, "missingKey")).toThrow(
-      "Set n8n-self-host-on-gcp:missingKey via Pulumi config."
-    );
+    expect(() => requireConfigString(config, "missingKey")).toThrow("Set n8n-self-host-on-gcp:missingKey via Pulumi config.");
   });
 });
 
@@ -62,9 +54,7 @@ describe("requireConfigNumber", () => {
       getNumber: jest.fn().mockReturnValue(undefined),
     });
 
-    expect(() => requireConfigNumber(config, "missingNumber")).toThrow(
-      "Set numeric config n8n-self-host-on-gcp:missingNumber."
-    );
+    expect(() => requireConfigNumber(config, "missingNumber")).toThrow("Set numeric config n8n-self-host-on-gcp:missingNumber.");
   });
 });
 
@@ -85,8 +75,6 @@ describe("requireConfigBoolean", () => {
       getBoolean: jest.fn().mockReturnValue(undefined),
     });
 
-    expect(() => requireConfigBoolean(config, "missingBool")).toThrow(
-      "Set boolean config n8n-self-host-on-gcp:missingBool."
-    );
+    expect(() => requireConfigBoolean(config, "missingBool")).toThrow("Set boolean config n8n-self-host-on-gcp:missingBool.");
   });
 });
