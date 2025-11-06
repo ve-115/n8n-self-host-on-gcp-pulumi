@@ -1,0 +1,7 @@
+name: n8n-self-host-on-gcp-pulumi
+runtime:
+  name: nodejs
+  options:
+    typescript: true
+main: src/index.ts
+description: Provision n8n on Google Cloud Run with Cloud SQL and Secret Manager using Pulumi.

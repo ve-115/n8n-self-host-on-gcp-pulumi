@@ -1,0 +1,17 @@
+config:
+  gcp:project: blackfinlabs-experimentation
+  gcp:region: us-west2
+  n8n-self-host-on-gcp:project: blackfinlabs-experimentation
+  n8n-self-host-on-gcp:region: us-west2
+  n8n-self-host-on-gcp:dbName: n8n
+  n8n-self-host-on-gcp:dbUser: n8n-user
+  n8n-self-host-on-gcp:dbTier: db-f1-micro
+  n8n-self-host-on-gcp:dbStorageSize: 10
+  n8n-self-host-on-gcp:cloudRunServiceName: n8n
+  n8n-self-host-on-gcp:serviceAccountName: n8n-service-account
+  n8n-self-host-on-gcp:cloudRunCpu: "1"
+  n8n-self-host-on-gcp:cloudRunMemory: 2Gi
+  n8n-self-host-on-gcp:cloudRunMaxInstances: 1
+  n8n-self-host-on-gcp:cloudRunContainerPort: 5678
+  n8n-self-host-on-gcp:genericTimezone: UTC
+  n8n-self-host-on-gcp:allowUnauthenticated: false
