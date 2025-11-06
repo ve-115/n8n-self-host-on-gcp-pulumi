@@ -76,9 +76,9 @@ flowchart TD
    │  │  ├─ database.test.ts
    │  │  ├─ secrets.test.ts
    │  │  └─ serviceAccount.test.ts
-   │  ├─ CloudRunService.ts    # Cloud Run deployment + IAM binding
-   │  ├─ Database.ts           # Cloud SQL instance, database, user, password
-   │  ├─ ProjectServices.ts    # Enables required GCP APIs
+   │  ├─ cloudRunService.ts    # Cloud Run deployment + IAM binding
+   │  ├─ database.ts           # Cloud SQL instance, database, user, password
+   │  ├─ projectServices.ts    # Enables required GCP APIs
    │  ├─ Secrets.ts            # Secret Manager secrets for password and encryption key
    │  ├─ ServiceAccount.ts     # Workload identity + role attachments
    │  └─ index.ts              # Barrel file exporting component factories
