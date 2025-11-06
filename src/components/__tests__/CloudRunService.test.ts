@@ -1,6 +1,6 @@
 import * as pulumi from "@pulumi/pulumi";
 import * as gcp from "@pulumi/gcp";
-import { createCloudRunService } from "../CloudRunService";
+import { createCloudRunService } from "../cloudRunService";
 import { CloudRunConfig, DatabaseConfig } from "../../types/config.types";
 import { SecretsResources } from "../../types/components.types";
 

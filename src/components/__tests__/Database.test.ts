@@ -1,7 +1,7 @@
 import * as pulumi from "@pulumi/pulumi";
 import * as gcp from "@pulumi/gcp";
 
-import { createDatabase } from "../Database";
+import { createDatabase } from "../database";
 import { DatabaseConfig } from "../../types/config.types";
 
 interface RecordedResource extends pulumi.runtime.MockResourceArgs {}
