@@ -2,29 +2,61 @@ import * as pulumi from "@pulumi/pulumi";
 import * as gcp from "@pulumi/gcp";
 import * as random from "@pulumi/random";
 
-const project =
-  gcp.config.project ?? process.env.GCP_PROJECT ?? process.env.GOOGLE_PROJECT;
+const project = gcp.config.project;
 if (!project) {
-  throw new Error(
-    "Configure gcp:project (or set GCP_PROJECT / GOOGLE_PROJECT) before running Pulumi."
-  );
+  throw new Error("Set gcp:project via Pulumi config before deploying.");
 }
 
-const region = gcp.config.region ?? process.env.GCP_REGION ?? "us-west2";
+const region = gcp.config.region;
+if (!region) {
+  throw new Error("Set gcp:region via Pulumi config before deploying.");
+}
 
-const config = new pulumi.Config("n8n-self-host-on-gcp");
-const dbName = config.get("dbName") ?? "n8n";
-const dbUser = config.get("dbUser") ?? "n8n-user";
-const dbTier = config.get("dbTier") ?? "db-f1-micro";
-const dbStorageSize = config.getNumber("dbStorageSize") ?? 10;
-const cloudRunServiceName = config.get("cloudRunServiceName") ?? "n8n";
-const serviceAccountName =
-  config.get("serviceAccountName") ?? "n8n-service-account";
-const cloudRunCpu = config.get("cloudRunCpu") ?? "1";
-const cloudRunMemory = config.get("cloudRunMemory") ?? "2Gi";
-const cloudRunMaxInstances = config.getNumber("cloudRunMaxInstances") ?? 1;
-const cloudRunContainerPort = config.getNumber("cloudRunContainerPort") ?? 5678;
-const genericTimezone = config.get("genericTimezone") ?? "UTC";
+const stackConfig = new pulumi.Config("n8n-self-host-on-gcp");
+
+const requireString = (key: string) => {
+  const value = stackConfig.get(key)?.trim();
+  if (!value) {
+    throw new Error(`Set n8n-self-host-on-gcp:${key} via Pulumi config.`);
+  }
+  return value;
+};
+
+const requireNumber = (key: string) => {
+  const value = stackConfig.getNumber(key);
+  if (value === undefined) {
+    throw new Error(`Set numeric config n8n-self-host-on-gcp:${key}.`);
+  }
+  return value;
+};
+
+const requireBoolean = (key: string) => {
+  const value = stackConfig.getBoolean(key);
+  if (value === undefined) {
+    throw new Error(`Set boolean config n8n-self-host-on-gcp:${key}.`);
+  }
+  return value;
+};
+
+const db = {
+  name: requireString("dbName"),
+  user: requireString("dbUser"),
+  tier: requireString("dbTier"),
+  version: requireString("dbVersion"),
+  storageSize: requireNumber("dbStorageSize"),
+};
+
+const cloudRun = {
+  serviceName: requireString("cloudRunServiceName"),
+  serviceAccountName: requireString("serviceAccountName"),
+  cpu: requireString("cloudRunCpu"),
+  memory: requireString("cloudRunMemory"),
+  maxInstances: requireNumber("cloudRunMaxInstances"),
+  containerPort: requireNumber("cloudRunContainerPort"),
+};
+
+const timezone = requireString("genericTimezone");
+const allowUnauthenticated = requireBoolean("allowUnauthenticated");
 
 // Enable core services required for the deployment.
 const runApi = new gcp.projects.Service("runApi", {
@@ -47,7 +79,7 @@ const resourceManagerApi = new gcp.projects.Service("resourceManagerApi", {
   disableOnDestroy: false,
 });
 
-const dbInstanceName = `${cloudRunServiceName}-db`;
+const dbInstanceName = `${cloudRun.serviceName}-db`;
 
 const dbPassword = new random.RandomPassword("dbPassword", {
   length: 16,
@@ -58,7 +90,7 @@ const dbPassword = new random.RandomPassword("dbPassword", {
   minSpecial: 1,
   keepers: {
     dbInstance: dbInstanceName,
-    dbUser,
+    dbUser: db.user,
   },
 });
 
@@ -73,12 +105,12 @@ const dbInstance = new gcp.sql.DatabaseInstance(
     name: dbInstanceName,
     project,
     region,
-    databaseVersion: "POSTGRES_13",
+    databaseVersion: db.version,
     settings: {
-      tier: dbTier,
+      tier: db.tier,
       availabilityType: "ZONAL",
       diskType: "PD_HDD",
-      diskSize: dbStorageSize,
+      diskSize: db.storageSize,
       backupConfiguration: {
         enabled: false,
       },
@@ -89,13 +121,13 @@ const dbInstance = new gcp.sql.DatabaseInstance(
 );
 
 const database = new gcp.sql.Database("n8nDatabase", {
-  name: dbName,
+  name: db.name,
   instance: dbInstance.name,
   project,
 });
 
 const databaseUser = new gcp.sql.User("n8nUser", {
-  name: dbUser,
+  name: db.user,
   instance: dbInstance.name,
   password: dbPassword.result,
   project,
@@ -104,7 +136,7 @@ const databaseUser = new gcp.sql.User("n8nUser", {
 const dbPasswordSecret = new gcp.secretmanager.Secret(
   "dbPasswordSecret",
   {
-    secretId: `${cloudRunServiceName}-db-password`,
+    secretId: `${cloudRun.serviceName}-db-password`,
     project,
     replication: {
       auto: {},
@@ -124,7 +156,7 @@ const dbPasswordSecretVersion = new gcp.secretmanager.SecretVersion(
 const encryptionKeySecret = new gcp.secretmanager.Secret(
   "encryptionKeySecret",
   {
-    secretId: `${cloudRunServiceName}-encryption-key`,
+    secretId: `${cloudRun.serviceName}-encryption-key`,
     project,
     replication: {
       auto: {},
@@ -142,7 +174,7 @@ const encryptionKeySecretVersion = new gcp.secretmanager.SecretVersion(
 );
 
 const serviceAccount = new gcp.serviceaccount.Account("n8nServiceAccount", {
-  accountId: serviceAccountName,
+  accountId: cloudRun.serviceAccountName,
   displayName: "n8n Service Account for Cloud Run",
   project,
 });
@@ -177,13 +209,13 @@ const projectDetails = pulumi.output(
   gcp.organizations.getProject({ projectId: project })
 );
 const projectNumber = projectDetails.number;
-const serviceHost = pulumi.interpolate`${cloudRunServiceName}-${projectNumber}.${region}.run.app`;
+const serviceHost = pulumi.interpolate`${cloudRun.serviceName}-${projectNumber}.${region}.run.app`;
 const serviceUrl = pulumi.interpolate`https://${serviceHost}`;
 
 const n8nService = new gcp.cloudrunv2.Service(
   "n8nService",
   {
-    name: cloudRunServiceName,
+    name: cloudRun.serviceName,
     project,
     location: region,
     ingress: "INGRESS_TRAFFIC_ALL",
@@ -191,7 +223,7 @@ const n8nService = new gcp.cloudrunv2.Service(
     template: {
       serviceAccount: serviceAccount.email,
       scaling: {
-        maxInstanceCount: cloudRunMaxInstances,
+        maxInstanceCount: cloudRun.maxInstances,
         minInstanceCount: 0,
       },
       volumes: [
@@ -212,22 +244,22 @@ const n8nService = new gcp.cloudrunv2.Service(
             },
           ],
           ports: {
-            containerPort: cloudRunContainerPort,
+            containerPort: cloudRun.containerPort,
           },
           resources: {
             limits: {
-              cpu: cloudRunCpu,
-              memory: cloudRunMemory,
+              cpu: cloudRun.cpu,
+              memory: cloudRun.memory,
             },
             startupCpuBoost: true,
             cpuIdle: false,
           },
           envs: [
-            { name: "N8N_PORT", value: cloudRunContainerPort.toString() },
+            { name: "N8N_PORT", value: cloudRun.containerPort.toString() },
             { name: "N8N_PROTOCOL", value: "https" },
             { name: "DB_TYPE", value: "postgresdb" },
-            { name: "DB_POSTGRESDB_DATABASE", value: dbName },
-            { name: "DB_POSTGRESDB_USER", value: dbUser },
+            { name: "DB_POSTGRESDB_DATABASE", value: db.name },
+            { name: "DB_POSTGRESDB_USER", value: db.user },
             {
               name: "DB_POSTGRESDB_HOST",
               value: pulumi.interpolate`/cloudsql/${dbInstance.connectionName}`,
@@ -235,7 +267,7 @@ const n8nService = new gcp.cloudrunv2.Service(
             { name: "DB_POSTGRESDB_PORT", value: "5432" },
             { name: "DB_POSTGRESDB_SCHEMA", value: "public" },
             { name: "N8N_USER_FOLDER", value: "/home/node/.n8n" },
-            { name: "GENERIC_TIMEZONE", value: genericTimezone },
+            { name: "GENERIC_TIMEZONE", value: timezone },
             { name: "QUEUE_HEALTH_CHECK_ACTIVE", value: "true" },
             { name: "N8N_RUNNERS_ENABLED", value: "true" },
             { name: "N8N_PROXY_HOPS", value: "1" },
@@ -267,7 +299,7 @@ const n8nService = new gcp.cloudrunv2.Service(
             periodSeconds: 240,
             failureThreshold: 3,
             tcpSocket: {
-              port: cloudRunContainerPort,
+              port: cloudRun.containerPort,
             },
           },
         },
@@ -293,17 +325,19 @@ const n8nService = new gcp.cloudrunv2.Service(
   }
 );
 
-const publicInvoker = new gcp.cloudrunv2.ServiceIamMember(
-  "n8nPublicInvoker",
-  {
-    project,
-    location: n8nService.location,
-    name: n8nService.name,
-    role: "roles/run.invoker",
-    member: "allUsers",
-  },
-  { dependsOn: [n8nService] }
-);
+if (allowUnauthenticated) {
+  new gcp.cloudrunv2.ServiceIamMember(
+    "n8nPublicInvoker",
+    {
+      project,
+      location: n8nService.location,
+      name: n8nService.name,
+      role: "roles/run.invoker",
+      member: "allUsers",
+    },
+    { dependsOn: [n8nService] }
+  );
+}
 
 export const cloudRunServiceUrl = n8nService.uri;
 export const cloudSqlConnectionName = dbInstance.connectionName;

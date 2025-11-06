@@ -70,12 +70,10 @@ Pulumi ➜ Cloud Run (n8n container)
    pulumi config set n8n-self-host-on-gcp:allowUnauthenticated true   # only if org policy allows public access
    ```
 
-   The stack file `Pulumi.self-host-n8n-gcp.yaml` ships with sane defaults for every value so teammates can clone and deploy immediately. Update that file (or use `pulumi config set`) to customize environment-specific settings. Available Pulumi config keys (namespace `n8n-self-host-on-gcp`):
+   Available Pulumi config keys (namespace `n8n-self-host-on-gcp`):
 
    | Key                     | Type    | Default               | Purpose                                           |
    | ----------------------- | ------- | --------------------- | ------------------------------------------------- |
-   | `project`               | string  | inherits `gcp:project`| Optional override for the project ID              |
-   | `region`                | string  | `us-west2`            | Optional override for the GCP region              |
    | `dbName`                | string  | `n8n`                 | Cloud SQL database name                           |
    | `dbUser`                | string  | `n8n-user`            | Database username                                 |
    | `dbTier`                | string  | `db-f1-micro`         | Cloud SQL machine tier                            |
@@ -87,7 +85,10 @@ Pulumi ➜ Cloud Run (n8n container)
    | `cloudRunMaxInstances`  | number  | `1`                   | Cloud Run autoscaling cap                         |
    | `cloudRunContainerPort` | number  | `5678`                | n8n container port                                |
    | `genericTimezone`       | string  | `UTC`                 | Default timezone for n8n                          |
-   | `allowUnauthenticated`  | boolean | `false`               | If true, grants `roles/run.invoker` to `allUsers` |
+   | `allowUnauthenticated`  | boolean | `true`                | If true, grants `roles/run.invoker` to `allUsers` |
+
+   Stack-scoped overrides: append `:<stack>` to any key, e.g.
+   `pulumi config set n8n-self-host-on-gcp:staging:cloudRunMaxInstances 3`.
 
 5. **Preview and apply**
 
