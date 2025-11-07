@@ -13,13 +13,12 @@ So you want to run n8n without the monthly subscription fees, keep your data und
 
 ## Costs
 
-GCP Infrastructure costs are approximately ~$25 USD / month for a starter setup. 
+GCP Infrastructure costs are approximately ~$25 USD / month for a starter setup.
 For a simple starter setup (config that's in the repo) these are the approximate costs.
 
-Depends on your usage and how big of a DB you need - but it's super cheap and as you scale this will be 8x cheaper than using n8n managed instance. 
+Depends on your usage and how big of a DB you need - but it's super cheap and as you scale this will be 8x cheaper than using n8n managed instance.
 
 <img width="300" height="500" alt="image" src="https://github.com/user-attachments/assets/b998fe24-911a-408e-9b8c-f27b9391f821" />
-
 
 ## Component-Driven Pulumi Structure
 
